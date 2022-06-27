@@ -1,0 +1,44 @@
+<div class="container"
+     fxLayout
+     fxLayout.xs="column"
+     fxLayoutAlign="center"
+     fxLayoutGap="10px"
+     fxLayoutGap.xs="0">
+    <div class="item score-card">
+        <div *ngIf="isGameStarted" class="centre">
+            Welcome To Bowling Game!!!
+        </div>
+
+        <div>
+            <div class="centre">
+                <mat-form-field *ngIf="!isGameStarted"  appearance="fill">
+                    <mat-label>Game Name</mat-label>
+                    <input matInput [(ngModel)]="gameName" >
+                </mat-form-field>
+            </div>
+            <div class="centre">
+                <button [disabled]="!gameName.length" *ngIf="!isGameStarted" mat-raised-button color="primary" (click)="startGame()" style="margin-right:20px">Start Game</button>
+            </div>
+            <div>
+                <button *ngIf="isGameStarted && !isRollStarted" mat-raised-button style="margin-right:20px" (click)="addNewPlayer()">Add Player</button>
+            </div>
+        </div>
+    
+        <div>
+            <h3 *ngIf="isGameStarted">Number of remaining pins : {{remainingPins}}</h3>
+        </div>
+
+        <app-bowling-score-card 
+            [game]="game"
+            [dataSource]="dataSource"
+            (rollStarted)="isRollingStarted($event)"
+            (remainingPingsChanged)="remainingPingsChanged($event)"
+            (gameStateChanged)="gameStateChanged($event)">
+        </app-bowling-score-card>
+
+    </div>
+    <div class="item leader-board" *ngIf="isGameStarted">
+        <app-bowling-leader-board [isGameOver]="isGameOver"></app-bowling-leader-board>
+    </div>
+</div>
+
