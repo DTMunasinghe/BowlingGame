@@ -4,7 +4,7 @@ Final scores of each game will be stored in a fake DB
 
 # Server
 
-1). Open the package manager console and execute update-database command (Check the connection string in appsettings.json file)
+1). Build the solution and verify there are no errors 
 
 2). Run the application (WebApi project should run on port 5001 (check the iisExpress applicationUrl of the launchSettings.json file))
 
