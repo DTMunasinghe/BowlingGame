@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { IFrame, IGame, ILane } from '../interfaces/bowling.interfaces';
 import { GameService } from '../services/game.service';
@@ -8,7 +8,7 @@ import { GameService } from '../services/game.service';
   templateUrl: './bowling-container.component.html',
   styleUrls: ['./bowling-container.component.scss']
 })
-export class BowlingContainerComponent implements OnInit {
+export class BowlingContainerComponent {
 
   public game: IGame = { GameId: '', Lanes: [] };
   public gameId: string = '';
@@ -22,9 +22,6 @@ export class BowlingContainerComponent implements OnInit {
   private currentLane: number = 1;
 
   constructor(private gameService: GameService) { }
-
-  public ngOnInit(): void {
-  }
 
   public initializeFramesArray(): Array<IFrame> {
     let frames: Array<IFrame> = [];

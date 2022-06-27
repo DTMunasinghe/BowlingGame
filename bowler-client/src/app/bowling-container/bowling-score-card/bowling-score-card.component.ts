@@ -9,7 +9,7 @@ import { ScoreService } from 'src/app/services/score.service';
   templateUrl: './bowling-score-card.component.html',
   styleUrls: ['./bowling-score-card.component.scss']
 })
-export class BowlingScoreCardComponent implements OnInit {
+export class BowlingScoreCardComponent {
 
   @Input()
   public game: IGame = { GameId: '', Lanes: [] };
@@ -27,16 +27,17 @@ export class BowlingScoreCardComponent implements OnInit {
   public gameStateChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   public isGameOver: boolean = false;
-  public displayedColumns: string[] = ['Player #', 'Frame 1', 'Frame 2', 'Frame 3', 'Frame 4', 'Frame 5', 'Frame 6', 'Frame 7', 'Frame 8', 'Frame 9', 'Frame 10', 'Total Score'];
+  public displayedColumns: string[] = ['Player #', 'Frame 1', 'Frame 2', 'Frame 3', 'Frame 4', 'Frame 5', 'Frame 6'
+                                        , 'Frame 7', 'Frame 8', 'Frame 9', 'Frame 10', 'Total Score'];
 
   private activeLane: number = 1;
   private activeFrame: number = 1;
   public remainingPins: number = 10;
 
-  constructor(private _snackBar: MatSnackBar, private scoreService: ScoreService) { }
-
-  public ngOnInit(): void {
-  }
+  constructor(
+    private _snackBar: MatSnackBar, 
+    private scoreService: ScoreService
+  ) { }
 
   public isMyTurn(laneId: number, frame: number): boolean {
     return (this.activeLane === laneId && this.activeFrame === frame);
@@ -50,36 +51,36 @@ export class BowlingScoreCardComponent implements OnInit {
     
     const currentFrame: IFrame = this.game.Lanes[laneId - 1].Frames[frame - 1];
     
-    if (this.isLastFrame(frame)) {
-      if (this.isFirstRoll(currentFrame)) {
+    if (this.isLastFrame(frame)) { // 10th Frame
+      if (this.isFirstRoll(currentFrame)) {   // First Roll
         if (this.isStrike(fallenPins)) {
+          this.updateRollOne(laneId, frame, fallenPins);
           this.resetRemainingPins();
-          this.updateRollOne(laneId, frame, fallenPins);
         } else {
-          this.updateRemainingPins(fallenPins);
           this.updateRollOne(laneId, frame, fallenPins);
+          this.updateRemainingPins(fallenPins);
         }
         this.game.Lanes[laneId - 1].Frames[frame - 1].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 2].Total + fallenPins; // Update Total
         this.updateLastScore(laneId, frame);
-      } else if (this.isSecondRoll(currentFrame)) {
+      } else if (this.isSecondRoll(currentFrame)) {     // Second Roll
         if (this.isSpare(<number>currentFrame.Roll1, fallenPins)) {
           this.resetRemainingPins();
           this.updateRollTwo(laneId, frame, fallenPins);
           this.game.Lanes[laneId - 1].Frames[frame - 1].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Total + fallenPins; // Update Total
           this.updateLastScore(laneId, frame);
         } else {
-          this.updateRemainingPins(fallenPins);
           this.updateRollTwo(laneId, frame, fallenPins);
           this.game.Lanes[laneId - 1].Frames[frame - 1].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Total + fallenPins; // Update Total
           this.updateLastScore(laneId, frame);
+          this.updateRemainingPins(fallenPins);
 
           if (this.isBowlingGameOver()) {
-            this.saveFinalScoreOfTheLane(laneId); // Save the Total Score of the Lane
+            this.saveFinalScoreOfTheLane(laneId);
             this.stopGame();
             this.showWinner();
           } else {
+            this.saveFinalScoreOfTheLane(laneId); 
             this.moveToNextLane();
-            this.saveFinalScoreOfTheLane(laneId); // Save the Total Score of the Lane
           }
         }
       } else if (this.isStrike(<number>currentFrame.Roll1) || this.isSpare(<number>currentFrame.Roll1, <number>currentFrame.Roll2)) { // Third roll
@@ -88,19 +89,19 @@ export class BowlingScoreCardComponent implements OnInit {
         this.updateLastScore(laneId, frame);
 
         if (this.isBowlingGameOver()) {
-          this.saveFinalScoreOfTheLane(laneId); // Save the Total Score of the Lane
+          this.saveFinalScoreOfTheLane(laneId); 
           this.stopGame();
           this.showWinner();
         } else {
+          this.saveFinalScoreOfTheLane(laneId); 
           this.moveToNextLane();
-          this.saveFinalScoreOfTheLane(laneId); // Save the Total Score of the Lane
         }
       }
     } else {
       if (this.isFirstRoll(currentFrame)) { // First Roll
-        if (this.isStrike(fallenPins)) { // Strike
-          this.moveToNextLane();
+        if (this.isStrike(fallenPins)) {
           this.resetRemainingPins();
+          this.moveToNextLane();
         } else {
           this.updateRemainingPins(fallenPins);
         }
@@ -114,7 +115,7 @@ export class BowlingScoreCardComponent implements OnInit {
       } else { // Second roll
         this.updateRollTwo(laneId, frame, fallenPins);
         this.resetRemainingPins();
-        this.moveToNextLane();
+
         if (frame > 1) {
           this.game.Lanes[laneId - 1].Frames[frame - 1].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 2].Total 
                                                                 + <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Roll1 + fallenPins;
@@ -123,6 +124,8 @@ export class BowlingScoreCardComponent implements OnInit {
           this.game.Lanes[laneId - 1].Frames[frame - 1].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Roll1 + fallenPins; // Update Total
           this.updateLastScore(laneId, frame);
         }
+
+        this.moveToNextLane();
       }
     }
     this.progressGame();
@@ -132,13 +135,13 @@ export class BowlingScoreCardComponent implements OnInit {
     this.game.Lanes[laneId - 1].TotalScore = <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Total;
   }
 
+  // Save the Total Score of the Lane
   private saveFinalScoreOfTheLane(laneId: number): void {
     const scoreObj: any = {
       GameId: this.game.GameId,
       LaneId: laneId,
       TotalScore: this.game.Lanes[laneId - 1].TotalScore
     };
-
     this.scoreService.addScore(scoreObj).subscribe();
   }
 
@@ -157,7 +160,7 @@ export class BowlingScoreCardComponent implements OnInit {
       }
 
       if (frame> 2 && this.isOneBeforeThePreviousFrameIsStrike(laneId, frame) && this.isPreviousFrameIsStrike(laneId, frame)) {
-        // update one before previous frame total
+        // update One Before Previous Frame total
         this.game.Lanes[laneId - 1].Frames[frame - 3].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 3].Total 
                                                               + <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Roll1
       }
@@ -168,7 +171,7 @@ export class BowlingScoreCardComponent implements OnInit {
     this.game.Lanes[laneId - 1].Frames[frame - 1].Roll2 = fallenPins;
     if (frame > 1) {
       if (this.isPreviousFrameIsStrike(laneId, frame)) {
-        // update previous frame total
+        // update Previous Frame total
         this.game.Lanes[laneId - 1].Frames[frame - 2].Total = <number>this.game.Lanes[laneId - 1].Frames[frame - 2].Total 
                                                               + <number>this.game.Lanes[laneId - 1].Frames[frame - 1].Roll2;
       }
@@ -216,12 +219,12 @@ export class BowlingScoreCardComponent implements OnInit {
     this.activeLane = 1; 
   }
 
-  private moveToNexFrame(): void {
-    this.activeFrame++;
-  }
-
   private moveToNextLane(): void {
     this.activeLane++;
+  }
+
+  private moveToNexFrame(): void {
+    this.activeFrame++;
   }
 
   private resetRemainingPins(): void {
@@ -260,7 +263,7 @@ export class BowlingScoreCardComponent implements OnInit {
     return this.game.Lanes.length < laneId;
   }
 
-  private isSpare(fallenPinsOfRoll1: number, fallenPinsOfRoll2: number,) {
+  private isSpare(fallenPinsOfRoll1: number, fallenPinsOfRoll2: number): boolean {
     return (fallenPinsOfRoll1 + fallenPinsOfRoll2 === 10);
   }
 

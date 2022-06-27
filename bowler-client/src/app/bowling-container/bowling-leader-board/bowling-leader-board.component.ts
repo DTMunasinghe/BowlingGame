@@ -21,14 +21,17 @@ export class BowlingLeaderBoardComponent implements OnInit, OnChanges {
   @Input()
   public isGameOver: boolean = false;
 
-  constructor(private scoreService: ScoreService, private gameService: GameService, private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    private scoreService: ScoreService, 
+    private gameService: GameService, 
+    private changeDetectorRef: ChangeDetectorRef
+  ) { }
 
   public ngOnInit(): void {
     this.fetchData();
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
     if (changes['isGameOver'].currentValue === true) {
       this.fetchData();
     }
@@ -63,8 +66,8 @@ export class BowlingLeaderBoardComponent implements OnInit, OnChanges {
     return games.filter(x => x.id === gameId)[0].name;
   }
 
-  // I don't have to to this if I used a actual DB
-  private fetchData() {
+  // I don't have to to this if I used an actual DB
+  private fetchData(): void {
     combineLatest([
       this.getTopScores(), 
       this.getGames()
